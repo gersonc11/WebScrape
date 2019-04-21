@@ -22,28 +22,29 @@ app.use(express.json());
 app.use(express.static("public"));
 
 // Connect to the Mongo DB
-// mongoose.connect("mongodb://localhost/scrape", { useNewUrlParser: true });
+mongoose.connect("mongodb://localhost/scrape", { useNewUrlParser: true });
 
 // Routes
 
 // A GET route for scraping the echoJS website
-// app.get("/scrape", function(req, res) {
+app.get("/scrape", function (req, res) {
   // First, we grab the body of the html with axios
-  axios.get("https://www.nytimes.com").then(function(response) {
+  axios.get("https://www.nytimes.com").then(function (response) {
     // Then, we load that into cheerio and save it to $ for a shorthand selector
     var $ = cheerio.load(response.data);
 
-    var results=[];
+    var results = db.articles;
 
-    $("h2.esl82me0").slice(3).each(function(i, element) {
+    $("h2.esl82me0").slice(3).each(function (i, element) {
       var title = $(element).text();
       // console.log(title)
       var link = $(element).parent().parent().attr("href");
-      let url = "https://www.nytimes.com/"+link;
+      let url = "https://www.nytimes.com/" + link;
       // console.log(url)
-      let summary1 = $(element).parent().next().text();
-      let summary2= $(element).parent().next().children().text()
-      console.log(summary1 + summary2)
+      let summary = $(element).parent().next().text();
+      console.log(`${summary}`)
+      results.insert({ "title": `${title}`, "link": `${url}`, "summary": `${summary}` })
     })
-    // console.log(results)
+    res.send("Scrape Complete");
+  });
 });
