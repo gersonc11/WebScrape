@@ -37,9 +37,13 @@ app.use(express.static("public"));
 
     $("h2.esl82me0").slice(3).each(function(i, element) {
       var title = $(element).text();
-      console.table(title )
+      // console.log(title)
       var link = $(element).parent().parent().attr("href");
-      console.log("https://www.nytimes.com/"+link)
+      let url = "https://www.nytimes.com/"+link;
+      // console.log(url)
+      let summary1 = $(element).parent().next().text();
+      let summary2= $(element).parent().next().children().text()
+      console.log(summary1 + summary2)
     })
     // console.log(results)
 });
