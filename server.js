@@ -21,16 +21,25 @@ app.use(express.json());
 // Make public a static folder
 app.use(express.static("public"));
 
+var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/scrape";
+
+
 // Connect to the Mongo DB
-mongoose.connect("mongodb://localhost/scrape", { useNewUrlParser: true });
+mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
 
 // Routes
 
-// A GET route for scraping the echoJS website
+// landing page route
+app.get("/", function(req, res) {
+  res.sendFile(path.join(__dirname, "public/index.html"));
+});
+
+
+// Route to get news that is scraped from the NY times website
 app.get("/scrape", function (req, res) {
-  // First, we grab the body of the html with axios
+// grabbing body of website with axios
   axios.get("https://www.nytimes.com").then(function (response) {
-    // Then, we load that into cheerio and save it to $ for a shorthand selector
+    // loading body into cheerio and giving it a variable of $ for shorthand
     var $ = cheerio.load(response.data);
 
     var results = db.articles;
@@ -43,8 +52,15 @@ app.get("/scrape", function (req, res) {
       // console.log(url)
       let summary = $(element).parent().next().text();
       console.log(`${summary}`)
-      results.insert({ "title": `${title}`, "link": `${url}`, "summary": `${summary}` })
+      results.insert({ "headLine": `${title}`, "link": `${url}`, "summary": `${summary}` })
     })
     res.send("Scrape Complete");
   });
+});
+
+
+
+// Start the server
+app.listen(PORT, function() {
+  console.log("App running on port " + PORT + "!");
 });
